@@ -244,6 +244,107 @@ public class MotorPHPayrollSystem {
         }
         return map;
     }
+   // ====== DATE FILTERING & CUTOFF LOGIC ======
+
+static boolean isJuneToDecember(String date) {
+    if (date == null || date.length() < 7) return false;
+
+    String[] parts = date.split("-");
+    if (parts.length < 2) return false;
+
+    int month = Integer.parseInt(parts[1]);
+    return month >= 6 && month <= 12;
 }
+
+static String cutoffKey(String date) {
+    String[] parts = date.split("-");
+    String year = parts[0];
+    String month = parts[1];
+    int day = Integer.parseInt(parts[2]);
+
+    String cutoff = (day <= 15) ? "C1" : "C2";
+
+    return year + "-" + month + "|" + cutoff;
+}
+
+static String yearMonthFromAnyRecord(List<String[]> empRows, int targetMonth) {
+    for (String[] r : empRows) {
+        String date = r[4];
+        String[] parts = date.split("-");
+        int month = Integer.parseInt(parts[1]);
+
+        if (month == targetMonth) {
+            return parts[0] + "-" + parts[1];
+        }
+    }
+
+    String firstDate = empRows.get(0)[4];
+    String[] parts = firstDate.split("-");
+    return parts[0] + "-" + String.format("%02d", targetMonth);
+}
+
+// ====== ATTENDANCE HOURS COMPUTATION ======
+
+static double computeDailyHours(String timeIn, String timeOut) {
+    try {
+        String[] inParts = timeIn.split(":");
+        String[] outParts = timeOut.split(":");
+
+        int inHour = Integer.parseInt(inParts[0]);
+        int inMin = Integer.parseInt(inParts[1]);
+
+        int outHour = Integer.parseInt(outParts[0]);
+        int outMin = Integer.parseInt(outParts[1]);
+
+        int startMinutes = inHour * 60 + inMin;
+        int endMinutes = outHour * 60 + outMin;
+
+        int workStart = 8 * 60;   // 8:00 AM
+        int workEnd = 17 * 60;    // 5:00 PM
+
+        if (startMinutes < workStart) startMinutes = workStart;
+        if (endMinutes > workEnd) endMinutes = workEnd;
+
+        if (endMinutes <= startMinutes) return 0.0;
+
+        int totalMinutes = endMinutes - startMinutes;
+
+        return totalMinutes / 60.0;
+
+    } catch (Exception e) {
+        return 0.0;
+    }
+}
+
+// ====== SAFE PARSE ======
+
+static double parseDoubleSafe(String value) {
+    try {
+        return Double.parseDouble(value);
+    } catch (Exception e) {
+        return 0.0;
+    }
+}
+
+// ====== DEDUCTION PLACEHOLDERS ======
+
+static double computeSSS(double gross) {
+    return gross * 0.05;
+}
+
+static double computePhilHealth(double gross) {
+    return gross * 0.03;
+}
+
+static double computePagIbig(double gross) {
+    return gross * 0.02;
+}
+
+static double computeTax(double gross) {
+    return gross * 0.10;
+}
+
+}
+
 
     
