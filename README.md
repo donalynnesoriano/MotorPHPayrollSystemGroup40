@@ -108,4 +108,4 @@ The program will display payroll details for all employees in the CSV file.
 
 ## Project Plan Link
 
-[MotorPH Project Plan](https://drive.google.com/drive/folders/1NkuK9ec7Do3QY5mTy2zN_OlPYIm_n15H?usp=sharing)
+[MotorPH Project Plan Group 40](https://drive.google.com/drive/folders/1NkuK9ec7Do3QY5mTy2zN_OlPYIm_n15H?usp=sharing)
